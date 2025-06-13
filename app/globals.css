@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 210 40% 9.8%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 205 90% 45%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 205 90% 55%;
+    --radius: 0.5rem;
+
+    /* Wave Habitat Ocean Theme Variables */
+    --wave-deep-blue: 220 60% 15%;
+    --wave-mid-blue: 210 50% 35%;
+    --wave-light-blue: 195 60% 65%;
+    --wave-sand: 35 50% 85%;
+    --wave-coral: 0 70% 60%;
+    --wave-seafoam: 150 60% 55%;
+    --wave-button-on: 130 60% 45%;
+    --wave-button-off: 0 70% 55%;
+    --wave-button-auto: 45 80% 55%;
+    --glow-color: hsl(var(--wave-seafoam));
+  }
+
+  .dark {
+    --background: var(--wave-deep-blue);
+    --foreground: var(--wave-sand);
+    --card: var(--wave-mid-blue);
+    --card-foreground: var(--wave-sand);
+    --popover: var(--wave-mid-blue);
+    --popover-foreground: var(--wave-sand);
+    --primary: var(--wave-light-blue);
+    --primary-foreground: var(--wave-deep-blue);
+    --secondary: 220 40% 25%;
+    --secondary-foreground: var(--wave-sand);
+    --muted: 220 40% 25%;
+    --muted-foreground: 190 30% 60%;
+    --accent: 220 40% 25%;
+    --accent-foreground: var(--wave-light-blue);
+    --destructive: var(--wave-coral);
+    --destructive-foreground: var(--wave-sand);
+    --border: 220 40% 28%;
+    --input: 220 40% 28%;
+    --ring: var(--wave-light-blue);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .status-glow-active {
+    --glow-color: hsl(var(--wave-seafoam));
+    @apply animate-status-glow rounded-full;
+  }
+  .status-glow-inactive {
+    --glow-color: hsl(var(--wave-coral));
+    @apply animate-status-glow rounded-full;
+  }
+  .status-glow-auto {
+    --glow-color: hsl(var(--wave-button-auto));
+    @apply animate-status-glow rounded-full;
+  }
+  .bg-button-on {
+    @apply bg-wave-buttonOn hover:bg-wave-buttonOn/90 text-primary-foreground;
+  }
+  .bg-button-off {
+    @apply bg-wave-buttonOff hover:bg-wave-buttonOff/90 text-primary-foreground;
+  }
+  .bg-button-auto {
+    @apply bg-wave-buttonAuto hover:bg-wave-buttonAuto/90 text-black;
+  }
+}
