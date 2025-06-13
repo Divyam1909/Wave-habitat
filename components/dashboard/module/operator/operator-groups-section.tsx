@@ -33,7 +33,7 @@ export function OperatorGroupsSection({ module, onUpdatePin }: OperatorGroupsSec
 
   // Get pins in a specific group
   const getPinsInGroup = (groupId?: string): Pin[] => {
-    return module.pins.filter((p) => p.assignedGroupId === groupId)
+    return (module.pins || []).filter((p) => p.assignedGroupId === groupId)
   }
 
   // Convert groupedPins object to an array of { name: string, pins: Pin[] }

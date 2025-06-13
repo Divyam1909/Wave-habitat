@@ -17,14 +17,14 @@ export function ViewerGroupsSection({ module: initialModule }: ViewerGroupsSecti
   const [module, setModule] = useState<Module>(initialModule)
 
   useEffect(() => {
-    const latestModuleData = getModuleById(initialModule.id)
+    const latestModuleData = getModuleById(initialModule.module_id)
     if (latestModuleData) {
       setModule(latestModuleData)
     }
   }, [initialModule, getModuleById])
 
   const getPinsInGroup = (groupId?: string): Pin[] => {
-    return module.pins.filter((p) => p.assignedGroupId === groupId)
+    return (module.pins || []).filter((p) => p.assignedGroupId === groupId)
   }
 
   const unassignedPins = module.pins.filter((p) => !p.assignedGroupId)

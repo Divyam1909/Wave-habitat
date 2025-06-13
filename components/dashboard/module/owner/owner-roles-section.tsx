@@ -39,7 +39,7 @@ export function OwnerRolesSection({ module: initialModule }: OwnerRolesSectionPr
   const [editingRole, setEditingRole] = useState<AssignedUser["role"]>("viewer")
 
   useEffect(() => {
-    const latestModuleData = getModuleById(initialModule.id)
+    const latestModuleData = getModuleById(initialModule.module_id)
     if (latestModuleData) {
       setModule(latestModuleData)
     }
@@ -60,7 +60,7 @@ export function OwnerRolesSection({ module: initialModule }: OwnerRolesSectionPr
     }
     setIsAssigning(true)
     try {
-      const newAssignment = await assignUserToModule(module.id, targetUserEmail, selectedRole)
+      const newAssignment = await assignUserToModule(module.module_id, targetUserEmail, selectedRole)
       if (newAssignment) {
         toast({ title: "Role Assigned", description: `${newAssignment.username} is now a ${newAssignment.role}.` })
         setTargetUserEmail("")
@@ -85,7 +85,7 @@ export function OwnerRolesSection({ module: initialModule }: OwnerRolesSectionPr
     if (!editingUser) return
     setIsAssigning(true) // Reuse loading state
     try {
-      await assignUserToModule(module.id, editingUser.username, editingRole) // Assuming username is email or unique identifier for lookup
+      await assignUserToModule(module.module_id, editingUser.username, editingRole) // Assuming username is email or unique identifier for lookup
       toast({ title: "Role Updated", description: `${editingUser.username}'s role updated to ${editingRole}.` })
       setEditingUser(null)
     } catch (error: any) {
@@ -95,7 +95,7 @@ export function OwnerRolesSection({ module: initialModule }: OwnerRolesSectionPr
   }
 
   const handleRemoveRole = async (userIdToRemove: string) => {
-    const success = await removeUserFromModule(module.id, userIdToRemove)
+    const success = await removeUserFromModule(module.module_id, userIdToRemove)
     if (success) {
       toast({ title: "User Removed", description: "User's access has been revoked." })
     } else {
@@ -157,11 +157,11 @@ export function OwnerRolesSection({ module: initialModule }: OwnerRolesSectionPr
         {/* List of Assigned Users */}
         <div>
           <h3 className="text-lg font-medium text-wave-sand mb-3">Current User Roles</h3>
-          {module.assignedUsers.length === 0 ? (
+          {module.assignedUsers?.length === 0 ? (
             <p className="text-sm text-wave-sand/70 italic">No users have been assigned roles for this module yet.</p>
           ) : (
             <div className="space-y-3">
-              {module.assignedUsers.map((assigned) => (
+              {module.assignedUsers?.map((assigned) => (
                 <Card key={assigned.userId} className="bg-wave-deepBlue/40 border-wave-lightBlue/20 p-3">
                   <div className="flex items-center justify-between">
                     <div>

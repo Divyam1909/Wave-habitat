@@ -50,23 +50,22 @@ export interface ModuleMetric {
   history: MetricDataPoint[]
 }
 
+// In lib/types.ts
+
+// This is the "shallow" module object we get from our main get-modules.php
 export interface Module {
   module_id: string;
   name: string;
   description: string | null;
-  alloted_pins: number;
-  used_pins: number;
-  pins_left: number;
-  module_status: number; // 0 or 1
-  role: 'owner' | 'operator' | 'programmer' | 'viewer'; // The user's role for this module
-  // --- Owner Configurable ---
-  pinCount?: number // Number of pins configured by owner (max 120)
-  pins: Pin[] // Array of configured pins
-  groups: ModuleGroup[]
-  assignedUsers: AssignedUser[]
-
-  // --- Operational Data (for Operator, Programmer, Viewer) ---
-  metrics?: {
-    [key: string]: ModuleMetric // e.g., temperature, pH
-  }
+  role: 'owner' | 'operator' | 'programmer' | 'viewer';
+  
+  // These are now optional because they will only exist on the "deep" detail object
+  alloted_pins?: number;
+  used_pins?: number;
+  pins_left?: number;
+  module_status?: number;
+  pins?: Pin[];
+  groups?: ModuleGroup[];
+  assignedUsers?: AssignedUser[];
+  metrics?: { [key: string]: ModuleMetric };
 }

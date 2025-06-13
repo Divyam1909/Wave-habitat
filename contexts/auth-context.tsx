@@ -5,46 +5,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import type { User, Module } from "@/lib/types";
 
-// --- TYPE DEFINITIONS ---
-//interface User {
- // id: number;
- // name: string;
-  //email: string;
- // phone?: string;
- // username?: string;
-//}
-
-// This interface now perfectly matches the data returned by the PHP API
-//interface Module {
-  //module_id: string;
-  //name: string;
-  //description: string | null;
-  //alloted_pins: number;
-  //used_pins: number;
-  //pins_left: number;
-  //module_status: number; // 0 or 1
-  //role: 'owner' | 'operator' | 'programmer' | 'viewer';
-//}
-
-interface ModuleGroup {
-  id: string;
-  name: string;
-}
-
-interface Pin {
-  id: string;
-  name: string;
-  assignedGroupId?: string;
-  state?: 'on' | 'off' | 'auto';
-  autoConfig?: any;
-}
-
-interface AssignedUser {
-  userId: string;
-  username: string;
-  role: 'owner' | 'operator' | 'programmer' | 'viewer';
-}
-
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
@@ -55,11 +15,10 @@ interface AuthContextType {
   register: (userData: any) => Promise<any>;
   updateUserProfile: (userData: any) => Promise<void>;
   getModuleById: (moduleId: string) => Module | undefined;
-  // Module management functions
+  updateModulePinCount: (moduleId: string, pinCount: number) => Promise<void>;
   addModuleGroup: (moduleId: string, groupName: string) => Promise<any>;
   updateModuleGroup: (moduleId: string, groupId: string, newName: string) => Promise<boolean>;
   deleteModuleGroup: (moduleId: string, groupId: string) => Promise<boolean>;
-  updateModulePinCount: (moduleId: string, pinCount: number) => Promise<boolean>;
   updateModulePinDetails: (moduleId: string, pinId: string, details: any) => Promise<boolean>;
   assignUserToModule: (moduleId: string, userEmail: string, role: string) => Promise<any>;
   removeUserFromModule: (moduleId: string, userId: string) => Promise<boolean>;
@@ -77,17 +36,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserModules = useCallback(async (userId: number) => {
     try {
-        const response = await fetch(`/wave/api/get-modules.php?user_id=${userId}`);
-        const data = await response.json();
-        if (response.ok && data.success) {
-            setModules(data.modules || []);
-        } else {
-            console.error("Failed to fetch modules:", data.error);
-            setModules([]);
-        }
-    } catch (error) {
-        console.error("Error fetching modules:", error);
+      const response = await fetch(`/wave/api/get-modules.php?user_id=${userId}`);
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setModules(data.modules || []);
+      } else {
+        console.error("Failed to fetch modules:", data.error);
         setModules([]);
+      }
+    } catch (error) {
+      console.error("Error fetching modules:", error);
+      setModules([]);
     }
   }, []);
 
@@ -119,11 +78,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
     const result = await response.json();
 
-    if (response.ok && result.success) {
-      return result;
-    } else {
+    if (!response.ok || !result.success) {
       throw new Error(result.error || "Registration failed.");
     }
+    return result;
   }, []);
 
   const updateUserProfile = useCallback(async (userData: any): Promise<void> => {
@@ -143,7 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error(result.error || "Profile update failed.");
     }
   }, [user]);
-  
+
   const addModule = useCallback(async (moduleId: string, password: string): Promise<void> => {
     if (!user) throw new Error("You must be logged in to add a module.");
 
@@ -165,41 +123,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return modules.find(m => m.module_id === moduleId);
   }, [modules]);
 
-  // Mock implementations for module management (replace with actual API calls)
+  const updateModulePinCount = useCallback(async (moduleId: string, pinCount: number): Promise<void> => {
+    if (!user) throw new Error("User not authenticated.");
+
+    const response = await fetch('/wave/api/update-pin-count.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ module_id: moduleId, pin_count: pinCount, user_id: user.id }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Failed to update pin count.");
+    }
+
+    setModules(prevModules =>
+      prevModules.map(m =>
+        m.module_id === moduleId ? { ...m, alloted_pins: pinCount } : m
+      )
+    );
+  }, [user]);
+
+  // Placeholder/mock APIs
   const addModuleGroup = useCallback(async (moduleId: string, groupName: string) => {
-    // Mock implementation - replace with actual API call
-    const newGroup = { id: `group-${Date.now()}`, name: groupName };
-    return newGroup;
+    return { id: `group-${Date.now()}`, name: groupName };
   }, []);
 
   const updateModuleGroup = useCallback(async (moduleId: string, groupId: string, newName: string): Promise<boolean> => {
-    // Mock implementation - replace with actual API call
     return true;
   }, []);
 
   const deleteModuleGroup = useCallback(async (moduleId: string, groupId: string): Promise<boolean> => {
-    // Mock implementation - replace with actual API call
-    return true;
-  }, []);
-
-  const updateModulePinCount = useCallback(async (moduleId: string, pinCount: number): Promise<boolean> => {
-    // Mock implementation - replace with actual API call
     return true;
   }, []);
 
   const updateModulePinDetails = useCallback(async (moduleId: string, pinId: string, details: any): Promise<boolean> => {
-    // Mock implementation - replace with actual API call
     return true;
   }, []);
 
   const assignUserToModule = useCallback(async (moduleId: string, userEmail: string, role: string) => {
-    // Mock implementation - replace with actual API call
-    const newAssignment = { userId: `user-${Date.now()}`, username: userEmail, role };
-    return newAssignment;
+    return { userId: `user-${Date.now()}`, username: userEmail, role };
   }, []);
 
   const removeUserFromModule = useCallback(async (moduleId: string, userId: string): Promise<boolean> => {
-    // Mock implementation - replace with actual API call
     return true;
   }, []);
 
@@ -220,7 +187,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(parsedUser);
           await fetchUserModules(parsedUser.id);
         }
-      } catch (e) {
+      } catch {
         localStorage.removeItem("waveUserSession");
       }
       setIsLoading(false);
@@ -235,20 +202,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (user && isAuthPage) router.push("/dashboard");
   }, [user, isLoading, pathname, router]);
 
-  const value = { 
-    user, 
-    isLoading, 
-    modules, 
-    login, 
-    logout, 
-    addModule, 
+  const value: AuthContextType = {
+    user,
+    isLoading,
+    modules,
+    login,
+    logout,
+    addModule,
     register,
     updateUserProfile,
     getModuleById,
+    updateModulePinCount,
     addModuleGroup,
     updateModuleGroup,
     deleteModuleGroup,
-    updateModulePinCount,
     updateModulePinDetails,
     assignUserToModule,
     removeUserFromModule

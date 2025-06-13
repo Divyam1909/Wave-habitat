@@ -37,13 +37,13 @@ export function OwnerGroupsSection({ module: initialModule }: OwnerGroupsSection
   const [module, setModule] = useState<Module>(initialModule)
   const [newGroupName, setNewGroupName] = useState("")
   const [editableGroups, setEditableGroups] = useState<EditableGroup[]>(
-    initialModule.groups.map((g) => ({ ...g, isEditing: false, tempName: g.name })),
+    initialModule.groups?.map((g) => ({ ...g, isEditing: false, tempName: g.name })) || []
   )
   const [isAddingGroup, setIsAddingGroup] = useState(false)
 
   useEffect(() => {
-    const latestModuleData = getModuleById(initialModule.id)
-    if (latestModuleData) {
+    const latestModuleData = getModuleById(initialModule.module_id)
+    if (latestModuleData && latestModuleData.groups) {
       setModule(latestModuleData)
       setEditableGroups(latestModuleData.groups.map((g) => ({ ...g, isEditing: false, tempName: g.name })))
     }
@@ -55,7 +55,7 @@ export function OwnerGroupsSection({ module: initialModule }: OwnerGroupsSection
       return
     }
     setIsAddingGroup(true)
-    const newGroup = await addModuleGroup(module.id, newGroupName)
+    const newGroup = await addModuleGroup(module.module_id, newGroupName)
     if (newGroup) {
       toast({ title: "Group Added", description: `Group "${newGroupName}" created.` })
       setNewGroupName("")
@@ -82,14 +82,14 @@ export function OwnerGroupsSection({ module: initialModule }: OwnerGroupsSection
       toast({ variant: "destructive", title: "Invalid Name", description: "Group name cannot be empty." })
       return
     }
-    const success = await updateModuleGroup(module.id, group.id, group.tempName)
+    const success = await updateModuleGroup(module.module_id, group.id, group.tempName)
     if (success) {
       toast({ title: "Group Updated", description: `Group renamed to "${group.tempName}".` })
     } // Error toast handled in context
   }
 
   const handleDeleteGroup = async (groupId: string) => {
-    const success = await deleteModuleGroup(module.id, groupId)
+    const success = await deleteModuleGroup(module.module_id, groupId)
     if (success) {
       toast({ title: "Group Deleted", description: "Group and its pin assignments removed." })
     } else {
@@ -98,9 +98,9 @@ export function OwnerGroupsSection({ module: initialModule }: OwnerGroupsSection
   }
 
   const getPinsInGroup = (groupId?: string): Pin[] => {
-    return module.pins.filter((p) => p.assignedGroupId === groupId)
+    return (module.pins || []).filter((p) => p.assignedGroupId === groupId)
   }
-  const unassignedPins = module.pins.filter((p) => !p.assignedGroupId)
+  const unassignedPins = (module.pins || []).filter((p) => !p.assignedGroupId)
 
   return (
     <Card className="bg-wave-midBlue/70 border-wave-lightBlue/40">
@@ -142,7 +142,7 @@ export function OwnerGroupsSection({ module: initialModule }: OwnerGroupsSection
 
         {(editableGroups.length > 0 || unassignedPins.length > 0) && (
           <Accordion type="multiple" className="w-full space-y-2">
-            {editableGroups.map((group) => {
+            {(editableGroups || []).map((group) => {
               const pinsInThisGroup = getPinsInGroup(group.id)
               return (
                 <AccordionItem
