@@ -1,4 +1,5 @@
 export interface User {
+  phone: string
   id: string
   name: string
   email: string
@@ -50,12 +51,14 @@ export interface ModuleMetric {
 }
 
 export interface Module {
-  id: string
-  name: string
-  description?: string
-  status: "active" | "inactive"
-  role: "owner" | "operator" | "viewer" | "programmer" // Role of the current user for this module
-
+  module_id: string;
+  name: string;
+  description: string | null;
+  alloted_pins: number;
+  used_pins: number;
+  pins_left: number;
+  module_status: number; // 0 or 1
+  role: 'owner' | 'operator' | 'programmer' | 'viewer'; // The user's role for this module
   // --- Owner Configurable ---
   pinCount?: number // Number of pins configured by owner (max 120)
   pins: Pin[] // Array of configured pins

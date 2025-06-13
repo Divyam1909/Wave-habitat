@@ -1,5 +1,3 @@
-// Full Code for: app/dashboard/page.tsx (Final, Corrected Version)
-
 "use client";
 
 import type React from "react";
@@ -10,26 +8,25 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
 import { AddModuleDialog } from "@/components/dashboard/add-module-dialog";
 import { useState } from "react";
+import type { Module } from "@/lib/types";
 
 // This interface must match the one in AuthContext
-interface Module {
-  module_id: string;
-  name: string;
-  description: string | null;
-  alloted_pins: number;
-  used_pins: number;
-  pins_left: number;
-  module_status: number;
-  role: 'owner' | 'operator' | 'programmer' | 'viewer';
-}
+//interface Module {
+  //module_id: string;
+  //name: string;
+  //description: string | null;
+  //alloted_pins: number;
+  //used_pins: number;
+  //pins_left: number;
+  //module_status: number; // 0 or 1
+  //role: 'owner' | 'operator' | 'programmer' | 'viewer';
+//}
 
 const roleIcons: { [key: string]: React.ElementType } = {
   owner: Settings, operator: Zap, programmer: Wrench, viewer: Eye, unknown: ShieldQuestion,
 };
 
 function FullScreenLoader({ message }: { message?: string }) {
-  // --- THIS IS THE CRITICAL FIX ---
-  // We must explicitly return the JSX element.
   return (
     <div className="flex flex-col h-[80vh] w-full items-center justify-center">
       <Loader2 className="h-12 w-12 animate-spin text-cyan-400" />
@@ -82,7 +79,7 @@ export default function DashboardPage() {
                     <CardTitle className="text-2xl text-white">{module.name}</CardTitle>
                     <div title={`Status: ${status}`} className={`w-3 h-3 mt-2 rounded-full ${status === "active" ? "bg-green-400 animate-pulse" : "bg-red-500"}`}/>
                   </div>
-                  <CardDescription className="text-gray-400">ID: {module.module_id}</CardDescription>
+                  <CardDescription className="text-xs text-gray-400">ID: {module.module_id}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow space-y-3">
                   <div className="flex items-center text-gray-300">

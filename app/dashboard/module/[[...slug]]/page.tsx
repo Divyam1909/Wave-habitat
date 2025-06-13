@@ -1,4 +1,4 @@
-// Full Code for: app/dashboard/module/[moduleId]/[role]/page.tsx (Final, Corrected Version)
+// Full Code for: app/dashboard/module/[[...slug]]/page.tsx (Corrected)
 
 "use client";
 
@@ -8,14 +8,15 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Module } from "@/lib/types";
 
-// --- CORRECTED IMPORTS ---
-// We import the UI "container" components from the 'components' directory
+// Import your main dashboard container components
 import { OwnerDashboard } from "@/components/dashboard/module/owner/owner-dashboard";
 import { ProgrammerDashboard } from "@/components/dashboard/module/programmer/programmer-dashboard";
 import { OperatorDashboard } from "@/components/dashboard/module/operator/operator-dashboard";
 import { ViewerDashboard } from "@/components/dashboard/module/viewer/viewer-dashboard";
 
 function ModuleLoader() {
+  // --- THIS IS THE CRITICAL FIX ---
+  // We must explicitly return the JSX element.
   return (
     <div className="flex h-[80vh] w-full items-center justify-center">
       <Loader2 className="h-12 w-12 animate-spin text-cyan-400" />
@@ -23,41 +24,39 @@ function ModuleLoader() {
   );
 }
 
-export default function ModulePage() {
+export default function CatchAllModulePage() {
   const params = useParams();
-  const { isLoading, getModuleById } = useAuth(); // We only need these from the context
+  const { modules, isLoading } = useAuth();
   
-  const moduleId = Array.isArray(params.moduleId) ? params.moduleId[0] : params.moduleId;
-  const roleFromUrl = Array.isArray(params.role) ? params.role[0] : params.role;
+  const slug = params.slug || [];
+  const moduleId = slug[0];
+  const roleFromUrl = slug[1];
 
   const [module, setModule] = useState<Module | null | undefined>(undefined);
 
-  // This effect finds the correct module once the auth context is ready
   useEffect(() => {
-    if (!isLoading && moduleId && roleFromUrl) {
-      const foundModule = getModuleById(moduleId);
+    if (!isLoading && modules && moduleId && roleFromUrl) {
+      const foundModule = modules.find(m => m.module_id === moduleId);
       
-      // Security Check: Does the user's actual role match the role in the URL?
       if (foundModule && foundModule.role.toLowerCase() === roleFromUrl.toLowerCase()) {
         setModule(foundModule);
       } else {
-        setModule(null); // Mark as not found or access denied
+        setModule(null);
       }
+    } else if (!isLoading) {
+      setModule(null);
     }
-  }, [isLoading, moduleId, roleFromUrl, getModuleById]);
+  }, [modules, isLoading, moduleId, roleFromUrl]);
 
-  // While we are finding the module, show a loader
   if (module === undefined || isLoading) {
     return <ModuleLoader />;
   }
 
-  // If we finished loading but found no matching module, show a 404 page
   if (module === null) {
     return notFound();
   }
 
-  // --- CORRECTED RENDER LOGIC ---
-  // We now pass the 'module' object as a prop to the correct dashboard component.
+  // Render the correct UI component, passing the module data as a prop
   switch (module.role) {
     case 'owner':
       return <OwnerDashboard module={module} />;
